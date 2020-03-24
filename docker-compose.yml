@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+        reisslein-analytik:
+          image: 'sebp/lighttpd'
+          container_name: reisslein-analytik
+          volumes:
+            - reisslein-analytik-data:/var/www/localhost/htdocs
+            - ./conf/:/etc/lighttpd
+          tty: true
+          networks:
+              - proxy
+          restart: unless-stopped
+          labels:
+              - traefik.enable=true
+              - traefik.docker.network=${DOCKER_NETWORK_NAME}
+              - traefik.http.services.reisslein-analytik.loadbalancer.server.port=80
+              - traefik.http.services.reisslein-analytik.loadbalancer.server.scheme=http
+              - traefik.http.routers.reisslein-analtyik.rule=Host(`www.reisslein-analytik.de`) || Host(`www.reisslein.de`)
+              - traefik.http.routers.reisslein-analytik.entrypoints=http
+              - traefik.http.routers.reisslein-analytik.middlewares=redirect@file
+              - traefik.http.routers.reisslein-analytik-https.rule=Host(`www.reisslein-analytik.de`)
+              - traefik.http.routers.reisslein-analytik-https.entrypoints=https
+              - traefik.http.routers.reisslein-anayltik-https.tls=true
+              - traefik.http.routers.reisslein-analytik-https.tls.certResolver=default                
+
+volumes:
+  reisslein-analytik-data:
+          name: reisslein-analytik-data
+networks:
+  proxy:
+    external:
+      name: ${DOCKER_NETWORK_NAME}
