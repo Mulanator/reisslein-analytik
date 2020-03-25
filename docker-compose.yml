@@ -2,11 +2,11 @@ version: '3.7'
 
 services:
         reisslein-analytik:
-          image: 'sebp/lighttpd'
+          image: 'php:7.2-apache'
           container_name: reisslein-analytik
           volumes:
-            - reisslein-analytik-data:/var/www/localhost/htdocs
-            - ./conf/:/etc/lighttpd
+            - reisslein-analytik-data:/var/www/html
+            - ./conf/:/etc/apache2/ 
           tty: true
           networks:
               - proxy
@@ -16,14 +16,13 @@ services:
               - traefik.docker.network=${DOCKER_NETWORK_NAME}
               - traefik.http.services.reisslein-analytik.loadbalancer.server.port=80
               - traefik.http.services.reisslein-analytik.loadbalancer.server.scheme=http
-              - traefik.http.routers.reisslein-analtyik.rule=Host(`www.reisslein-analytik.de`) || Host(`www.reisslein.de`)
+              - traefik.http.routers.reisslein-analtyik.rule=Host(`www.reisslein-analytik.de`) || Host(`www.reisslein.de`) ||Host(`reisslein-analytik.de`)
               - traefik.http.routers.reisslein-analytik.entrypoints=http
               - traefik.http.routers.reisslein-analytik.middlewares=redirect@file
               - traefik.http.routers.reisslein-analytik-https.rule=Host(`www.reisslein-analytik.de`)
               - traefik.http.routers.reisslein-analytik-https.entrypoints=https
               - traefik.http.routers.reisslein-anayltik-https.tls=true
               - traefik.http.routers.reisslein-analytik-https.tls.certResolver=default                
-
 volumes:
   reisslein-analytik-data:
           name: reisslein-analytik-data
